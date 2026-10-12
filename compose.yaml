@@ -1,0 +1,10 @@
+services:
+  fft:
+    build: .
+    image: eco-fft:local
+    platform: linux/amd64
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    network_mode: none
+    command: ["bash", "scripts/build.sh"]
