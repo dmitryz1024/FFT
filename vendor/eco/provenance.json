@@ -1,91 +1,96 @@
 {
-    "release":  "v0.1.3",
-    "source_url":  "https://github.com/peerf-eco/eco-harness-releases/releases/download/v0.1.3/marketplace_index.zip",
-    "archive_sha256":  "cbe72560272d20da725015d2dbe0a3fa5fa632d18256121f9c1c928d6c34ceb6",
-    "target":  "Linux/x86_64",
-    "components":  {
-                       "Eco.Core1":  "1.1.2.3",
-                       "Eco.System1":  "1.0.1.2",
-                       "Eco.InterfaceBus1":  "1.0.1.2",
-                       "Eco.MemoryManager1":  "1.0.1.2",
-                       "Eco.FileSystemManagement1":  "1.0.2.3"
-                   },
-    "files":  [
-                  {
-                      "path":  "Eco.Core1/SharedFiles/ErrEcoCodes.h",
-                      "sha256":  "acc396e03e58834f06ea68a1afdf0e11443df38f5fc468ca1c7e06858d3c7413",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/ErrEcoCodes.h"
-                  },
-                  {
-                      "path":  "Eco.Core1/SharedFiles/IEcoBase1.h",
-                      "sha256":  "9c6260e41ceed9b2565371238c749ae2e1d7ed7289d20ae3a8903512a36e90fc",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/IEcoBase1.h"
-                  },
-                  {
-                      "path":  "Eco.Core1/SharedFiles/IEcoSystem1.h",
-                      "sha256":  "dfc4cfea8f2b8d2bb6db7d4336f143225e9eeeaaf840b411db9ff2857da01723",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/IEcoSystem1.h"
-                  },
-                  {
-                      "path":  "Eco.Core1/SharedFiles/atomic.h",
-                      "sha256":  "759bdb42db6c39d450ec52f999901cfac83946609597adc2a8cfff46af1fecdc",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/atomic.h"
-                  },
-                  {
-                      "path":  "Eco.Core1/SharedFiles/byteswap.h",
-                      "sha256":  "c98fb700eed165fc35b1b5d404f11f46b6b2c09183d1206822c846aeb6fc5897",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/byteswap.h"
-                  },
-                  {
-                      "path":  "Eco.Core1/SharedFiles/depend.h",
-                      "sha256":  "7267b2b2a5b25e36b90a12a9f97f2d500cb583f413fa07fc74e093e4cab18c19",
-                      "archive_member":  "marketplace_cache/Eco.Core1/SharedFiles/depend.h"
-                  },
-                  {
-                      "path":  "Eco.FileSystemManagement1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000046534D31.a",
-                      "sha256":  "f6cb92f1ccb14cbc5825e116e582a866b66a27fe77cb393804244ee85ff359b0",
-                      "archive_member":  "marketplace_cache/Eco.FileSystemManagement1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000046534D31.a"
-                  },
-                  {
-                      "path":  "Eco.InterfaceBus1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000042757331.a",
-                      "sha256":  "f99c1e81b9587959a568aa73190fe1d18547c400dbb30c29af7b779b78deeec6",
-                      "archive_member":  "marketplace_cache/Eco.InterfaceBus1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000042757331.a"
-                  },
-                  {
-                      "path":  "Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1.h",
-                      "sha256":  "37f561cddac27b68d237df1de47594289d11f18184a3000def4ec719e455af3f",
-                      "archive_member":  "marketplace_cache/Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1.h"
-                  },
-                  {
-                      "path":  "Eco.MemoryManager1/BuildFiles/Linux/x86_64/StaticRelease/lib0000000000000000000000004D656D31.a",
-                      "sha256":  "9df7076c699b73302578fe112b12822b6c3d7493dbf0c9b1402768a9ba90e869",
-                      "archive_member":  "marketplace_cache/Eco.MemoryManager1/BuildFiles/Linux/x86_64/StaticRelease/lib0000000000000000000000004D656D31.a"
-                  },
-                  {
-                      "path":  "Eco.MemoryManager1/SharedFiles/IEcoMemoryAllocator1.h",
-                      "sha256":  "2113da6f174770e90812d5e26a8deeeddcb37c70d747591ca01142ee0b8535c3",
-                      "archive_member":  "marketplace_cache/Eco.MemoryManager1/SharedFiles/IEcoMemoryAllocator1.h"
-                  },
-                  {
-                      "path":  "Eco.MemoryManager1/SharedFiles/IEcoMemoryManager1.h",
-                      "sha256":  "a98a23d60ba31bd061d247a6f8b590722a76d0ce653ab0184e1a35f4bdcfa1b1",
-                      "archive_member":  "marketplace_cache/Eco.MemoryManager1/SharedFiles/IEcoMemoryManager1.h"
-                  },
-                  {
-                      "path":  "Eco.MemoryManager1/SharedFiles/IdEcoMemoryManager1.h",
-                      "sha256":  "f451d6e539be9bb44e8d9a0b2217300d1299407415eb88dfccba3b9e0e25438c",
-                      "archive_member":  "marketplace_cache/Eco.MemoryManager1/SharedFiles/IdEcoMemoryManager1.h"
-                  },
-                  {
-                      "path":  "Eco.System1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000053595333.a",
-                      "sha256":  "e4b11eddb8ea89434601cc867b7177bbb3ebd41efc9b40a79fbf4d0757013e02",
-                      "archive_member":  "marketplace_cache/Eco.System1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000053595333.a"
-                  },
-                  {
-                      "path":  "Eco.System1/SharedFiles/IEcoCommandArguments1.h",
-                      "sha256":  "fcb16d2e778f8766f88c6245c3a0ededd0fe7b815b3a42996a7774a445ecdb7f",
-                      "archive_member":  "marketplace_cache/Eco.System1/SharedFiles/IEcoCommandArguments1.h"
-                  }
-              ],
-    "licensing":  "Vendor headers retain their original copyright notices. No open-source grant is inferred."
+  "release": "v0.1.3",
+  "source_url": "https://github.com/peerf-eco/eco-harness-releases/releases/download/v0.1.3/marketplace_index.zip",
+  "archive_sha256": "cbe72560272d20da725015d2dbe0a3fa5fa632d18256121f9c1c928d6c34ceb6",
+  "target": "Linux/x86_64",
+  "components": {
+    "Eco.Core1": "1.1.2.3",
+    "Eco.System1": "1.0.1.2",
+    "Eco.InterfaceBus1": "1.0.1.2",
+    "Eco.MemoryManager1": "1.0.1.2",
+    "Eco.FileSystemManagement1": "1.0.2.3"
+  },
+  "files": [
+    {
+      "path": "Eco.Core1/SharedFiles/ErrEcoCodes.h",
+      "sha256": "acc396e03e58834f06ea68a1afdf0e11443df38f5fc468ca1c7e06858d3c7413",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/ErrEcoCodes.h"
+    },
+    {
+      "path": "Eco.Core1/SharedFiles/IEcoBase1.h",
+      "sha256": "9c6260e41ceed9b2565371238c749ae2e1d7ed7289d20ae3a8903512a36e90fc",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/IEcoBase1.h"
+    },
+    {
+      "path": "Eco.Core1/SharedFiles/IEcoSystem1.h",
+      "sha256": "dfc4cfea8f2b8d2bb6db7d4336f143225e9eeeaaf840b411db9ff2857da01723",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/IEcoSystem1.h"
+    },
+    {
+      "path": "Eco.Core1/SharedFiles/atomic.h",
+      "sha256": "759bdb42db6c39d450ec52f999901cfac83946609597adc2a8cfff46af1fecdc",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/atomic.h"
+    },
+    {
+      "path": "Eco.Core1/SharedFiles/byteswap.h",
+      "sha256": "c98fb700eed165fc35b1b5d404f11f46b6b2c09183d1206822c846aeb6fc5897",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/byteswap.h"
+    },
+    {
+      "path": "Eco.Core1/SharedFiles/depend.h",
+      "sha256": "7267b2b2a5b25e36b90a12a9f97f2d500cb583f413fa07fc74e093e4cab18c19",
+      "archive_member": "marketplace_cache/Eco.Core1/SharedFiles/depend.h"
+    },
+    {
+      "path": "Eco.FileSystemManagement1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000046534D31.a",
+      "sha256": "f6cb92f1ccb14cbc5825e116e582a866b66a27fe77cb393804244ee85ff359b0",
+      "archive_member": "marketplace_cache/Eco.FileSystemManagement1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000046534D31.a"
+    },
+    {
+      "path": "Eco.InterfaceBus1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000042757331.a",
+      "sha256": "f99c1e81b9587959a568aa73190fe1d18547c400dbb30c29af7b779b78deeec6",
+      "archive_member": "marketplace_cache/Eco.InterfaceBus1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000042757331.a"
+    },
+    {
+      "path": "Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1.h",
+      "sha256": "37f561cddac27b68d237df1de47594289d11f18184a3000def4ec719e455af3f",
+      "archive_member": "marketplace_cache/Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1.h"
+    },
+    {
+      "path": "Eco.MemoryManager1/BuildFiles/Linux/x86_64/StaticRelease/lib0000000000000000000000004D656D31.a",
+      "sha256": "9df7076c699b73302578fe112b12822b6c3d7493dbf0c9b1402768a9ba90e869",
+      "archive_member": "marketplace_cache/Eco.MemoryManager1/BuildFiles/Linux/x86_64/StaticRelease/lib0000000000000000000000004D656D31.a"
+    },
+    {
+      "path": "Eco.MemoryManager1/SharedFiles/IEcoMemoryAllocator1.h",
+      "sha256": "2113da6f174770e90812d5e26a8deeeddcb37c70d747591ca01142ee0b8535c3",
+      "archive_member": "marketplace_cache/Eco.MemoryManager1/SharedFiles/IEcoMemoryAllocator1.h"
+    },
+    {
+      "path": "Eco.MemoryManager1/SharedFiles/IEcoMemoryManager1.h",
+      "sha256": "a98a23d60ba31bd061d247a6f8b590722a76d0ce653ab0184e1a35f4bdcfa1b1",
+      "archive_member": "marketplace_cache/Eco.MemoryManager1/SharedFiles/IEcoMemoryManager1.h"
+    },
+    {
+      "path": "Eco.MemoryManager1/SharedFiles/IdEcoMemoryManager1.h",
+      "sha256": "f451d6e539be9bb44e8d9a0b2217300d1299407415eb88dfccba3b9e0e25438c",
+      "archive_member": "marketplace_cache/Eco.MemoryManager1/SharedFiles/IdEcoMemoryManager1.h"
+    },
+    {
+      "path": "Eco.System1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000053595333.a",
+      "sha256": "e4b11eddb8ea89434601cc867b7177bbb3ebd41efc9b40a79fbf4d0757013e02",
+      "archive_member": "marketplace_cache/Eco.System1/BuildFiles/Linux/x86_64/StaticRelease/lib00000000000000000000000053595333.a"
+    },
+    {
+      "path": "Eco.System1/SharedFiles/IEcoCommandArguments1.h",
+      "sha256": "fcb16d2e778f8766f88c6245c3a0ededd0fe7b815b3a42996a7774a445ecdb7f",
+      "archive_member": "marketplace_cache/Eco.System1/SharedFiles/IEcoCommandArguments1.h"
+    },
+    {
+      "path": "Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1MemExt.h",
+      "sha256": "d70a56d94d405228417cde54afcc4de4b5730d831f4e03219201535677f41716",
+      "archive_member": "marketplace_cache/Eco.InterfaceBus1/SharedFiles/IEcoInterfaceBus1MemExt.h"
+    }
+  ],
+  "licensing": "Vendor headers retain their original copyright notices. No open-source grant is inferred."
 }

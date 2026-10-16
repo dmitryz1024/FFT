@@ -25,15 +25,17 @@ for path in sorted((root / 'build/release').glob('C345*.so')):
     if '(NEEDED)' in dynamic:
         violations.append(f'{path.name}: DT_NEEDED dependency')
     exported = subprocess.check_output(['nm', '-D', '--defined-only', str(path)], text=True)
-    if ' GetIEcoComponentFactoryPtr\n' not in exported:
-        violations.append(f'{path.name}: Eco dynamic factory missing')
+    symbols = [line.split()[-1] for line in exported.splitlines()]
+    if symbols != ['GetIEcoComponentFactoryPtr']:
+        violations.append(f'{path.name}: expected only the standard Eco factory export, got {symbols}')
     libraries.append({'file': path.relative_to(root).as_posix(), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                       'undefined_symbols': undefined.splitlines(), 'has_needed': '(NEEDED)' in dynamic,
                       'exports': exported.splitlines()})
 if len(libraries) != 2:
     violations.append('Both independently loadable components must exist')
-# Ask the preprocessor which files were really included. In particular this
-# catches libc indirectly included by the original SDK depend.h.
+# Verify that the original SDK depend.h participates in every component build.
+# Its system header declarations are allowed; the linked module must still
+# contain no libc/libm imports. Never suppress or re-create SDK ABI definitions.
 commands = json.loads((root / 'build/release/compile_commands.json').read_text())
 import shlex
 headers = set()
@@ -46,14 +48,24 @@ for command in commands:
     args.remove('-c')
     args += ['-M']
     dependencies = subprocess.check_output(args, cwd=command['directory'], text=True)
+    if str(root / 'vendor/eco/Eco.Core1/SharedFiles/depend.h') not in dependencies:
+        violations.append(f'{command["file"]}: original SDK depend.h is missing')
+    if Path(command['file']).name == 'eco_factory.c':
+        if ('-DECO_DLL' in args) == ('-DECO_LIB' in args):
+            violations.append('Factory must select exactly one of ECO_DLL and ECO_LIB')
     for token in dependencies.replace('\\\n', '').split()[1:]:
         if token.endswith('.h'):
             headers.add(token)
-            if token.startswith('/usr/'):
-                violations.append(f'Unexpected system header: {token}')
+sdk = root / 'vendor/eco'
+provenance = json.loads((sdk / 'provenance.json').read_text(encoding='utf-8-sig'))
+for entry in provenance['files']:
+    if hashlib.sha256((sdk / entry['path']).read_bytes()).hexdigest() != entry['sha256']:
+        violations.append(f'Modified upstream SDK file: {entry["path"]}')
 result = {'status': 'PASS' if not violations else 'FAIL', 'authored_source_count': len(source_files),
           'libraries': libraries, 'component_headers': sorted(headers), 'violations': sorted(set(violations)),
           'scope': 'Authored component only; official Eco runtime and independent client references are external.'}
 (root / 'build/results/audit.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
-print(json.dumps(result, indent=2))
+print(f'AUDIT status={result["status"]} source_files={len(source_files)} components={len(libraries)} SDK_files={len(provenance["files"])}')
+for violation in result['violations']:
+    print(violation)
 raise SystemExit(bool(violations))

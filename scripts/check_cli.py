@@ -12,6 +12,7 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--exe', default='bin/eco_fft')
 parser.add_argument('--static-only', action='store_true')
+parser.add_argument('--report', default='cli-checks.json')
 options = parser.parse_args()
 exe = root / options.exe
 results_dir = root / 'build/results'
@@ -74,13 +75,13 @@ for arguments, code, marker in [([], 0, 'Usage:'), (['--help'], 0, 'Usage:'),
     check('arguments ' + ' '.join(arguments), result.returncode == code and marker in result.stdout + result.stderr)
 
 signals = [[1+0j, 2+0j, 3+0j, 4+0j], [1+.5j, -2+1j, -1j, 3+0j, .25+2j, -1-.5j, 2+1.5j], [3-4j]]
-link_modes = ['static'] if options.static_only else ['static', 'dynamic']
+link_modes = ['static'] if options.static_only else ['bus-default', 'bus-explicit-directory']
 for linking in link_modes:
     for algorithm in ('dit', 'dif'):
         for architecture in ('service', 'object'):
             extra = [f'--algorithm={algorithm}', f'--architecture={architecture}']
-            if linking == 'dynamic':
-                extra.append('--dynamic=bin')
+            if linking == 'bus-explicit-directory':
+                extra.append(f'--dynamic={exe.parent}')
             for values in signals:
                 tag = f'{linking}/{algorithm}/{architecture}/N={len(values)}'
                 forward = run(['--fft', '--input=-', *extra], csv_text(values))
@@ -122,9 +123,9 @@ for architecture in ('service', 'object'):
 
 if not options.static_only:
     result = run(['--fft', '--input=-', '--dynamic=build/missing'], '1,0\n')
-    check('missing dynamic library error', result.returncode != 0 and 'dlopen:' in result.stderr and not result.stdout)
+    check('missing component directory error', result.returncode != 0 and 'Eco component directory' in result.stderr and not result.stdout)
 failed = sum(item['status'] != 'PASS' for item in results)
-name = 'cli-sanitizer.json' if options.static_only else 'cli-checks.json'
+name = options.report
 (results_dir / name).write_text(json.dumps(results, indent=2) + '\n', encoding='utf-8')
 print(f'CLI_RESULT checks={len(results)} failures={failed} status={"FAIL" if failed else "PASS"}')
 raise SystemExit(bool(failed))

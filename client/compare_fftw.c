@@ -5,7 +5,7 @@
 #include "IEcoSystem1.h"
 #include "IEcoInterfaceBus1.h"
 #include "IEcoCommandArguments1.h"
-#include "IdEcoMemoryManager1.h"
+#include "eco_runtime.h"
 #include <fftw3.h>
 #include <errno.h>
 #include <float.h>
@@ -258,7 +258,6 @@ int16_t EcoMain(IEcoUnknown* unknown) {
     IEcoCommandArguments1* args = 0;
     IEcoDSP* dsp = 0;
     FILE *accuracy = 0, *timing = 0;
-    const UGUID* registered = 0;
     int check_only = 0;
     int16_t rc = 1;
     if (!unknown || unknown->pVTbl->QueryInterface(unknown, &GID_IEcoSystem, (void**)&system)) goto done;
@@ -279,23 +278,15 @@ int16_t EcoMain(IEcoUnknown* unknown) {
         if (fputc('\n', timing) == EOF) goto done;
     }
     if (system->pVTbl->QueryInterface(system, &IID_IEcoInterfaceBus1, (void**)&bus)) goto done;
-    if (bus->pVTbl->RegisterComponent(bus, &CID_EcoMemoryManager1,
-        (IEcoUnknown*)GetIEcoComponentFactoryPtr_0000000000000000000000004D656D31)) goto done;
     for (unsigned algorithm = 0; algorithm < 2; ++algorithm) {
         const UGUID* cid = algorithm ? &CID_EcoFFT_DIF : &CID_EcoFFT_DIT;
-        IEcoComponentFactory* factory = algorithm ? GetEcoFFTDIFactory() : GetEcoFFTDITFactory();
-        if (bus->pVTbl->RegisterComponent(bus, cid, (IEcoUnknown*)factory)) goto done;
-        registered = cid;
-        if (bus->pVTbl->QueryComponent(bus, cid, 0, &IID_IEcoDSP, (void**)&dsp)) goto done;
+        if (client_query_component(bus, cid, 0, &IID_IEcoDSP, (void**)&dsp)) goto done;
         if (compare_component(dsp, accuracy, timing)) goto done;
         dsp->pVTbl->Release(dsp); dsp = 0;
-        if (bus->pVTbl->UnRegisterComponent(bus, cid)) goto done;
-        registered = 0;
     }
     rc = failures || !isfinite(observed) ? 1 : 0;
 done:
     if (dsp) dsp->pVTbl->Release(dsp);
-    if (registered && bus && bus->pVTbl->UnRegisterComponent(bus, registered)) rc = 1;
     if (args) args->pVTbl->Release(args);
     if (bus) bus->pVTbl->Release(bus);
     if (system) system->pVTbl->Release(system);

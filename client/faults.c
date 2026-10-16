@@ -1,5 +1,6 @@
 #include "fft_client.h"
 #include "eco_internal.h"
+#include "IdEcoFFT.h"
 
 /* This allocator records the public allocation boundary, without depending
  * on any private object layout. Storage still comes from the actual Eco
@@ -435,7 +436,9 @@ static void invalid_creation(TrackingAllocator* mem, IEcoDSP* dsp,
 }
 
 static void factory_contracts(void) {
-    IEcoComponentFactory* factories[2] = {GetEcoFFTDITFactory(), GetEcoFFTDIFactory()};
+    IEcoComponentFactory* factories[2] = {
+        GetIEcoComponentFactoryPtr_C345FB78707144109821A6EF25310070,
+        GetIEcoComponentFactoryPtr_C345FB78707144109821A6EF25310071};
     uint32_t i;
     for (i = 0; i < 2U; ++i) {
         IEcoComponentFactory* factory = factories[i];

@@ -2,10 +2,11 @@
  * libc/libm are used only by this client, never by the FFT component. */
 #include "fft_client.h"
 #include "IEcoSystem1.h"
-#include "IdEcoMemoryManager1.h"
-#include "IEcoMemoryManager1.h"
 #include "IEcoCommandArguments1.h"
-#include <dlfcn.h>
+#include "eco_runtime.h"
+#ifdef ECO_STATIC_CLIENT
+#include "IdEcoFFT.h"
+#endif
 #include <errno.h>
 #include <sys/stat.h>
 
@@ -21,7 +22,11 @@ static void usage(void) {
          "       eco_fft --help\n\n"
          "CSV: optional real,imag header; one complex sample per row.\n"
          "Use '-' for stdin/stdout. Output defaults to stdout.\n"
-         "Transform defaults: DIT, service, statically linked components.\n"
+#ifdef ECO_STATIC_CLIENT
+         "Transform defaults: DIT, service, static components (--dynamic is unsupported).\n"
+#else
+         "Transform defaults: DIT, service, Eco bus loading beside the executable.\n"
+#endif
          "N: 1..65536. Finite real/imaginary parts with abs(value) <= 1e100.\n"
          "FFT uses a negative exponent; IFFT includes division by N.\n"
          "Test, demo and benchmark results are written to build/results/.");
@@ -36,19 +41,14 @@ static int results_directory(void) {
 int16_t EcoMain(IEcoUnknown* unknown) {
     IEcoSystem1* system = 0;
     IEcoInterfaceBus1* bus = 0;
-    IEcoMemoryAllocator1* allocator = 0;
-    IEcoMemoryManager1* manager = 0;
     IEcoCommandArguments1* args = 0;
     IEcoDSP* dsp = 0;
-    IEcoComponentFactory* factory;
     const char* mode = 0;
     const char* selected = 0;
     const char* dynamic = 0;
     const char* input = 0;
     const char* output = 0;
     const char* architecture = 0;
-    void* handles[2] = {0, 0};
-    int registered[2] = {0, 0};
     int transform = 0;
     unsigned first = 0, last = 1, algorithm;
     int16_t rc = 1;
@@ -96,66 +96,47 @@ int16_t EcoMain(IEcoUnknown* unknown) {
     if (selected && !strcmp(selected, "dit")) last = 0;
     else if (selected && !strcmp(selected, "dif")) first = 1;
     if (system->pVTbl->QueryInterface(system, &IID_IEcoInterfaceBus1, (void**)&bus)) goto done;
-    if (bus->pVTbl->RegisterComponent(bus, &CID_EcoMemoryManager1,
-        (IEcoUnknown*)GetIEcoComponentFactoryPtr_0000000000000000000000004D656D31)) goto done;
-    if (bus->pVTbl->QueryComponent(bus, &CID_EcoMemoryManager1, 0, &IID_IEcoMemoryManager1, (void**)&manager)) goto done;
-    if (manager->pVTbl->QueryInterface(manager, &IID_IEcoMemoryAllocator1, (void**)&allocator)) goto done;
     if (!transform) {
-        printf("EcoFFT | %s | %s linking | Linux x86_64\n", mode, dynamic ? "dynamic" : "static");
+        printf("EcoFFT | %s | Eco QueryComponent | Linux x86_64\n", mode);
         printf("ABI: UGUID=%zu, pointer=%zu, complexL=%zu, LDBL_MANT_DIG=%d\n",
                sizeof(UGUID), sizeof(void*), sizeof(EcoComplexL), LDBL_MANT_DIG);
     }
     for (algorithm = first; algorithm <= last; ++algorithm) {
         const UGUID* cid = algorithm ? &CID_EcoFFT_DIF : &CID_EcoFFT_DIT;
-        if (dynamic) {
-            char path[1024];
-            IEcoComponentFactory* (*get_factory)(void);
-            int length = snprintf(path, sizeof(path), "%s/C345FB78707144109821A6EF2531007%u.so", dynamic, algorithm);
-            if (length < 0 || (size_t)length >= sizeof(path)) { fprintf(stderr, "Library path is too long\n"); goto done; }
-            handles[algorithm] = dlopen(path, RTLD_NOW | RTLD_LOCAL);
-            if (!handles[algorithm]) { fprintf(stderr, "dlopen: %s\n", dlerror()); goto done; }
-            *(void**)(&get_factory) = dlsym(handles[algorithm], "GetIEcoComponentFactoryPtr");
-            if (!get_factory) { fprintf(stderr, "Factory symbol absent\n"); goto done; }
-            factory = get_factory();
-        } else factory = algorithm ? GetEcoFFTDIFactory() : GetEcoFFTDITFactory();
-        if (bus->pVTbl->RegisterComponent(bus, cid, (IEcoUnknown*)factory)) goto done;
-        registered[algorithm] = 1;
+#ifdef ECO_STATIC_CLIENT
+        if (dynamic) { fprintf(stderr, "The static example does not accept --dynamic\n"); goto done; }
+        {
+            IEcoComponentFactory* factory = algorithm
+                ? GetIEcoComponentFactoryPtr_C345FB78707144109821A6EF25310071
+                : GetIEcoComponentFactoryPtr_C345FB78707144109821A6EF25310070;
+            if (bus->pVTbl->RegisterComponent(bus, cid, (IEcoUnknown*)factory)) goto done;
+        }
         if (bus->pVTbl->QueryComponent(bus, cid, 0, &IID_IEcoDSP, (void**)&dsp)) goto done;
+#else
+        if (client_query_component(bus, cid, dynamic, &IID_IEcoDSP, (void**)&dsp)) goto done;
+#endif
         if (transform) {
             if (client_transform(dsp, input, output ? output : "-", !strcmp(mode, "ifft"),
                                  architecture && !strcmp(architecture, "object"))) goto done;
         } else {
-            printf("Component: %s\n", factory->pVTbl->get_Name(factory));
+            printf("Component: EcoFFT %s + Bluestein\n", dsp->pVTbl->Algorithm(dsp) ? "DIF" : "DIT");
             if (!strcmp(mode, "test")) client_tests(dsp);
             else if (!strcmp(mode, "demo")) client_demo(dsp);
             else client_benchmark(dsp);
         }
         dsp->pVTbl->Release(dsp); dsp = 0;
-        if (bus->pVTbl->UnRegisterComponent(bus, cid)) goto done;
-        registered[algorithm] = 0;
     }
     if (!strcmp(mode, "test")) {
-        client_faults(allocator);
         printf("TEST_RESULT checks=%u failures=%u status=%s\n",
                client_checks, client_failures, client_failures ? "FAIL" : "PASS");
     }
     rc = client_failures ? 1 : 0;
 done:
     if (dsp) dsp->pVTbl->Release(dsp);
-    for (algorithm = 0; algorithm < 2; ++algorithm) if (registered[algorithm] && bus) {
-        const UGUID* cid = algorithm ? &CID_EcoFFT_DIF : &CID_EcoFFT_DIT;
-        if (bus->pVTbl->UnRegisterComponent(bus, cid) == 0) registered[algorithm] = 0;
-        else rc = 1;
-    }
-    if (allocator) allocator->pVTbl->Release(allocator);
-    if (manager) manager->pVTbl->Release(manager);
     if (args) args->pVTbl->Release(args);
     if (bus) bus->pVTbl->Release(bus);
     if (system) system->pVTbl->Release(system);
-    /* Eco.System1 main still owns its initial system reference. If unregister
-     * failed, keep the module mapped until process exit so teardown is safe. */
-    for (algorithm = 0; algorithm < 2; ++algorithm)
-        if (handles[algorithm] && !registered[algorithm]) dlclose(handles[algorithm]);
+    /* The runtime owns the registered factories and loaded modules. */
     if (rc) fprintf(stderr, "EcoFFT failed (status=%d)\n", rc);
     return rc;
 }

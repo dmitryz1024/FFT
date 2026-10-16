@@ -116,9 +116,4 @@ typedef struct IEcoDSPVTbl {
 struct IEcoDSP { IEcoDSPVTbl* pVTbl; };
 #undef ECO_UNKNOWN_METHODS
 
-/* Named factories for static linking; dynamic modules also export the official
- * Eco entry point GetIEcoComponentFactoryPtr. */
-IEcoComponentFactory* ECOCALLMETHOD GetEcoFFTDITFactory(void);
-IEcoComponentFactory* ECOCALLMETHOD GetEcoFFTDIFactory(void);
-
 #endif

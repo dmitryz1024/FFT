@@ -1,11 +1,11 @@
 /* A complete Eco application: the official Eco.System1 library supplies main().
  * Build: cmake --build build/release --target eco_fft_example
- * Run:   build/release/eco_fft_example
- * Change CID/factory to select DIF. No component-internal headers are needed. */
+ * Run from the directory containing the CID-named .so files:
+ *        (cd build/release && ./eco_fft_example)
+ * Change only the CID to select DIF. No FFT implementation is linked. */
 #include "IEcoDSP.h"
 #include "IEcoSystem1.h"
 #include "IEcoInterfaceBus1.h"
-#include "IdEcoMemoryManager1.h"
 #include <stdio.h>
 
 int16_t EcoMain(IEcoUnknown* unknown) {
@@ -15,14 +15,10 @@ int16_t EcoMain(IEcoUnknown* unknown) {
     EcoComplexD input[4] = {{1, 0}, {2, 0}, {3, 0}, {4, 0}};
     EcoComplexD spectrum[4], restored[4];
     const EcoComplexD expected[4] = {{10, 0}, {-2, 2}, {-2, 0}, {-2, -2}};
-    int registered = 0;
     int16_t rc = 1;
     if (!unknown || unknown->pVTbl->QueryInterface(unknown, &GID_IEcoSystem, (void**)&system)) goto done;
     if (system->pVTbl->QueryInterface(system, &IID_IEcoInterfaceBus1, (void**)&bus)) goto done;
-    if (bus->pVTbl->RegisterComponent(bus, &CID_EcoMemoryManager1,
-        (IEcoUnknown*)GetIEcoComponentFactoryPtr_0000000000000000000000004D656D31)) goto done;
-    if (bus->pVTbl->RegisterComponent(bus, &CID_EcoFFT_DIT, (IEcoUnknown*)GetEcoFFTDITFactory())) goto done;
-    registered = 1;
+    /* The bus discovers the module and invokes its standard Eco factory. */
     if (bus->pVTbl->QueryComponent(bus, &CID_EcoFFT_DIT, 0, &IID_IEcoDSP, (void**)&dsp)) goto done;
     if (dsp->pVTbl->fft(dsp, 4, input, spectrum)) goto done;
     if (dsp->pVTbl->ifft(dsp, 4, spectrum, restored)) goto done;
@@ -38,7 +34,6 @@ int16_t EcoMain(IEcoUnknown* unknown) {
     rc = 0;
 done:
     if (dsp) dsp->pVTbl->Release(dsp);
-    if (registered && bus && bus->pVTbl->UnRegisterComponent(bus, &CID_EcoFFT_DIT)) rc = 1;
     if (bus) bus->pVTbl->Release(bus);
     if (system) system->pVTbl->Release(system);
     return rc;

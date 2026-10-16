@@ -1,9 +1,11 @@
 #include "eco_internal.h"
+#include "IEcoCalculatorX.h"
 
 /* A service owns only immutable configuration and the allocator reference.
  * No signal, tables or history survive a method call. */
 typedef struct EcoDSP {
     IEcoDSP base;
+    IEcoCalculatorX calculator;
     uint32_t refs;
     IEcoMemoryAllocator1* mem;
     uint32_t algorithm;
@@ -31,11 +33,46 @@ static int16_t ECOCALLMETHOD dsp_query(IEcoDSP* me, const UGUID* iid, void** out
     if (!out) return ECO_E_ARGUMENT;
     *out = 0;
     if (!me || !iid) return ECO_E_ARGUMENT;
-    if (!eco_guid_equal(iid, &IID_IEcoDSP) && !eco_guid_equal(iid, &IID_IEcoUnknown)) return ECO_E_INTERFACE;
+    if (eco_guid_equal(iid, &IID_IEcoDSP) || eco_guid_equal(iid, &IID_IEcoUnknown))
+        *out = me;
+    else if (eco_guid_equal(iid, &IID_IEcoCalculatorX))
+        *out = &((EcoDSP*)me)->calculator;
+    else return ECO_E_INTERFACE;
     dsp_addref(me);
-    *out = me;
     return ECO_OK;
 }
+
+/* Both interfaces share ownership and the canonical IEcoUnknown. An interface
+ * at a nonzero offset must recover its owner before accessing instance data. */
+static EcoDSP* calculator_owner(IEcoCalculatorX* me) {
+    return me ? (EcoDSP*)((char_t*)me - __builtin_offsetof(EcoDSP, calculator)) : 0;
+}
+static int16_t ECOCALLMETHOD calculator_query(IEcoCalculatorX* me, const UGUID* iid, void** out) {
+    EcoDSP* self = calculator_owner(me);
+    return dsp_query(self ? &self->base : 0, iid, out);
+}
+static uint32_t ECOCALLMETHOD calculator_ref(IEcoCalculatorX* me) {
+    EcoDSP* self = calculator_owner(me);
+    return dsp_addref(self ? &self->base : 0);
+}
+static uint32_t ECOCALLMETHOD calculator_release(IEcoCalculatorX* me) {
+    EcoDSP* self = calculator_owner(me);
+    return dsp_release(self ? &self->base : 0);
+}
+static int32_t ECOCALLMETHOD calculator_add(IEcoCalculatorX* me, int16_t a, int16_t b) {
+    return me ? (int32_t)a + b : 0;
+}
+static int16_t ECOCALLMETHOD calculator_subtract(IEcoCalculatorX* me, int16_t a, int16_t b) {
+    int32_t value = (int32_t)a - b;
+    if (!me) return 0;
+    /* The existing interface returns 16 bits. Define wraparound explicitly. */
+    if (value > 32767) value -= 65536;
+    if (value < -32768) value += 65536;
+    return (int16_t)value;
+}
+static IEcoCalculatorXVTbl calculator_vtbl = {
+    calculator_query, calculator_ref, calculator_release, calculator_add, calculator_subtract
+};
 
 /* Explicit widening before FFT and narrowing after all checks succeed.
  * The float bound ensures N*max(input) still fits in float for N<=65536.
@@ -165,6 +202,7 @@ int16_t eco_dsp_create(IEcoMemoryAllocator1* mem, uint32_t algorithm, IEcoDSP** 
     self = (EcoDSP*)mem->pVTbl->Alloc(mem, (uint32_t)sizeof(*self));
     if (!self) return ECO_E_MEMORY;
     self->base.pVTbl = &dsp_vtbl;
+    self->calculator.pVTbl = &calculator_vtbl;
     self->refs = 1;
     self->mem = mem;
     self->algorithm = algorithm;

@@ -7,7 +7,7 @@ come from the official `peerf-eco/eco-harness-releases` release **v0.1.3**, asse
 https://github.com/peerf-eco/eco-harness-releases/releases/tag/v0.1.3
 
 `provenance.json` records the source URL, archive SHA256, original archive member
-paths, individual file hashes and component versions. Only the eleven headers
+paths, individual file hashes and component versions. Only the twelve headers
 and four runtime libraries needed by this project are retained.
 
 Copyright notices in upstream files are preserved verbatim, including
